@@ -1,0 +1,805 @@
+openapi: 3.0.0
+info:
+  title: Self Tracking App Open API Documentation
+  version: 1.0.0
+  contact:
+    name: Akhil
+    email: 21f1006584@student.onlinedegree.iitm.ac.in
+    
+  description: An API for a Self Tracking app creating as part of a educational project. The API allows user to create new user, obtain or edit or delete details of existing users. The API also create, edit and delete Trackers. In addition it can create, edit and delete logs of those Trackers.
+    <h2> ER Diagram </h2>
+    <div id="C04B921C9EF47C4DC58E6A36236A27CB26C_49850"><div id="C04B921C9EF47C4DC58E6A36236A27CB26C_49850_robot"><a href="https://cloud.smartdraw.com/share.aspx/?pubDocShare=C04B921C9EF47C4DC58E6A36236A27CB26C" target="_blank"><img src="https://cloud.smartdraw.com/cloudstorage/C04B921C9EF47C4DC58E6A36236A27CB26C/preview2.png"></a></div></div><script src="https://cloud.smartdraw.com/plugins/html/js/sdjswidget_html.js" type="text/javascript"></script><script type="text/javascript">SDJS_Widget("C04B921C9EF47C4DC58E6A36236A27CB26C",49850,1,"");</script><br/>
+    
+    <h2> Error Code </h2>
+    <table>
+      <thead>
+        <th> Resource </th>
+        <th> Error Code </th>
+        <th> Message </th>
+      </thead>
+      <tbody>
+        <tr>
+          <td> user </td>
+          <td> U1001 </td>
+          <td> username is required </td>
+        </tr>
+        <tr>
+          <td> user </td>
+          <td> U1002 </td>
+          <td> email is required </td>
+        </tr>
+        <tr>
+          <td> user </td>
+          <td> U1003 </td>
+          <td> invalid email </td>
+        </tr>
+        <tr>
+          <td> user </td>
+          <td> U1004 </td>
+          <td> duplicate email </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1001 </td>
+          <td> tracker name is required </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1002 </td>
+          <td> tracker unit is required </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1003 </td>
+          <td> trackering frequency is required </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1004 </td>
+          <td> tracker description is required </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1005 </td>
+          <td> duplicate tracker </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1006 </td>
+          <td> cannot delete a tracker that is in use </td>
+        </tr>
+        <tr>
+          <td> tracker </td>
+          <td> T1007 </td>
+          <td> tracker type is required </td>
+        </tr>
+        <tr>
+          <td> log </td>
+          <td> L1001 </td>
+          <td> value is required </td>
+        </tr>
+        <tr>
+          <td> log </td>
+          <td> L1002 </td>
+          <td> timestamp is required </td>
+        </tr>
+        <tr>
+          <td> log </td>
+          <td> L1003 </td>
+          <td> oneid is required </td>
+        </tr>
+      </tbody>
+    </table>
+  
+  
+  
+servers:
+  - url: http://127.0.0.1:8080/
+    description: Local server
+  
+  
+  
+tags:
+  - name: user
+    description: CRUD operations on user
+    
+  - name: tracker
+    description: CRUD operations on tracker
+    
+  - name: trackertype
+    description: CRUD operation on trackertype(user specific trackers)
+    
+  - name: log
+    description: crud operation on log
+    
+
+
+paths:
+  /user:
+    summary: End point to add new user
+    description: Need to fill all details
+    
+    post:
+      tags:
+        - user
+      summary: Operation to create new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+         '201':
+           description: Successfully Created
+         '400':
+           description: incorrect input
+         '401':
+           description: Duplicate email
+         default:
+           description: Default error sample response
+       
+  /trackers:
+    summary: End point to get all trackers
+    description: No details required
+    
+    get:
+      tags:
+        - tracker
+      summary: Obtain details all trackers
+      description: Just the tracker names and descriptions, not types
+      
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trackers'
+        '400':
+          description: incorrect input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+        default:
+          description: Default error sample response
+    
+    
+  
+  /tracker:
+    summary: End point to add new tracker
+    description: Need to fill all details
+    
+    post:
+      tags:
+        - tracker
+      summary: Operation to create new tracker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tracker'
+      responses:
+         '201':
+           description: Successfully Created
+         '400':
+           description: incorrect input
+         '401':
+           description: Duplicate tracker
+         default:
+           description: Default error sample response
+       
+
+  /tracker/{tname}:
+    summary: End point to get, update and delete tracker
+    description: End point to get, update and delete tracker
+    
+    get:
+      tags:
+        - tracker
+      summary: Obtain details of a specific tracker
+      description: Just the tracker name and description, not types
+      operationId: getTrackerById
+      parameters:
+        - in: path
+          name: tname
+          required: True
+          description: Name of the tracker
+          schema:
+            type: string
+            example: Running
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tracker'
+        '400':
+          description: incorrect input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+        default:
+          description: Default error sample response
+      
+    put:
+      tags:
+        - tracker
+      summary: Update details of an existing tracker
+      description: Tracker name should be unique while updating
+      parameters:
+        - in: path
+          name: tname
+          required: True
+          description: Name of the tracker
+          schema:
+            type: string
+            example: Running
+      requestBody:
+        content:
+           application/json:
+            schema:
+              $ref: '#/components/schemas/Tracker'
+      responses:
+       '200':
+         description: Success
+       '400':
+         description: incorrect input
+       default:
+         description: Default error sample response
+         
+    delete:
+      tags:
+       - tracker
+      summary: Deleate an existing tracker
+      description: Can Delete only if no user have a trackertype associated with this tracker
+      parameters:
+        - in: path
+          name: tname
+          required: True
+          description: Name of the tracker
+          schema:
+            type: string
+            example: Running
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response        
+        
+
+  /user/{email}:
+    summary: End point to get, update and delete an user
+    description: End point to get, update and delete an user
+    
+    get:
+      tags:
+        - user
+      summary: Obtain details of a specific user
+      description: Details including existing trackers
+      operationId: getUserById
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Usertrackers'
+        '400':
+          description: incorrect input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+        '404':
+          description: Email not found
+        default:
+          description: Default error sample response
+      
+    put:
+      tags:
+        - user
+      summary: Update details of an existing user
+      description: email and password should not be updated
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+      requestBody:
+        content:
+           application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+       '200':
+         description: Success
+       '400':
+         description: incorrect input
+       default:
+         description: Default error sample response
+         
+    delete:
+      tags:
+       - user
+      summary: Deleate an existing user
+      description: Delete user along with all trackertypes and logs
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response
+          
+    post:
+      tags:
+        - trackertype
+      summary: Operation to add new trackertype to a user
+      description: Post Trackertype data along with email
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Trackertype'
+      responses:
+         '200':
+           description: Success
+         '400':
+           description: incorrect input
+         default:
+           description: Default error sample response
+        
+        
+  /user/{email}/{tname}:
+    summary: End point to get, update and delete tracker type
+    description: To get, update and delete tracker type of a specific user
+    
+    get:
+      tags:
+        - trackertype
+      summary: Give details of trackertype (each trackertype is unique to an user)
+      description: Details of a specific trackertype
+      operationId: getLogById
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trackertype'
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response
+      
+    put:
+      tags:
+        - trackertype
+      summary: Update details of an existing tracker type
+      description: parameters that affect existing log should not be changed
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Type'
+      responses:
+       '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trackertype'
+       '400':
+         description: incorrect input
+       default:
+         description: Default error sample response
+         
+    delete:
+      tags:
+       - trackertype
+      summary: Deleate an existing user's tracker
+      description: Delete tracker along with all logs of user
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response
+          
+    post:
+      tags:
+        - log
+      summary: Operation to create new log of a user's tracker
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Log'
+      responses:
+         '200':
+           description: Success
+         '400':
+           description: incorrect input
+         default:
+           description: Default error sample response
+        
+        
+  /user/{email}/{tname}/{log}:
+    summary: End point to get, update and delete an user
+    description: End point to get, update and delete an user
+    
+    get:
+      tags:
+        - log
+      summary: Give details of log
+      description: Details including existing trackers
+      operationId: getLogsById
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+        - in: path
+          name: log
+          required: True
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Log'
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response
+      
+    put:
+      tags:
+        - log
+      summary: Update details of an existing log
+      description: Log time shouldnt violate frequency
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+        - in: path
+          name: log
+          required: True
+          schema:
+            type: integer
+            example: 15
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Log'
+      responses:
+       '200':
+         description: Success
+       '400':
+         description: incorrect input
+       default:
+         description: Default error sample response
+         
+    delete:
+      tags:
+       - log
+      summary: Deleate an existing log
+      description: Warn against frequency violation
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+        - in: path
+          name: log
+          required: True
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response
+          
+          
+  /user/{email}/{tname}/logs:
+    summary: End point to logs of a trackertype
+    description: To get all user logs of a specific trackertype
+    
+    get:
+      tags:
+        - log
+      summary: Give details of trackertype
+      description: Details of a specific trackertype along with all logs
+      operationId: getTrackertypeById
+      parameters:
+        - in: path
+          name: email
+          required: True
+          description: email id of the user
+          schema:
+            type: string
+            example: akhil@example.com
+        - in: path
+          name: tname
+          required: True
+          schema:
+            type: string
+            example: Running
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trackertypelogs'
+        '400':
+          description: incorrect input
+        default:
+          description: Default error sample response
+      
+
+          
+
+
+components:
+  schemas:
+    Useremail:
+      description: Model containing user info
+      properties:
+        email:
+          type: string
+          example: akhil@example.com
+          
+          
+    User:
+      description: Model containing user info
+      properties:
+        uname:
+          type: string
+          example: Akhil
+        email:
+          type: string
+          example: akhil@example.com
+        password:
+          type: string
+        gender:
+          type: string
+          example: Male
+        dob:
+          type: string
+          example: 18/04/91
+   
+   
+    Tracker:
+      description: Model containing tracker info
+      properties:
+        tname:
+          type: string
+          example: Running
+        description:
+          type: string
+          example: As a form of workout
+      
+   
+    Trackers:
+      description: Array of trackers
+      type: array
+      items:
+        $ref: '#/components/schemas/Tracker'          
+    
+    Usertrackers:
+      description: Details of each user along with trackers array
+      type: object
+      properties:
+        User:
+          $ref: '#/components/schemas/User'
+        Trackers:
+          $ref: '#/components/schemas/Trackers'
+   
+    Type:
+      description: Type of logs
+      properties:
+        type:
+          type: string
+          example: numeric
+        unit:
+          type: string
+          example: kms
+        frequency:
+          type: string
+          example: daily
+   
+   
+    Trackertype:
+      description: User specific version of each tracker
+      allOf:
+        - $ref: '#/components/schemas/Useremail'
+        - $ref: '#/components/schemas/Tracker'
+        - $ref: '#/components/schemas/Type'
+   
+   
+    Trackertypes:
+      description: Array of user specific trackers
+      type: array
+      items:
+        $ref: '#/components/schemas/Trackertype'
+        
+        
+    Log:
+      description: Model of log details of a Trackertype
+      properties:
+        oneid:
+          type: integer
+          example: 12
+        timestamp:
+          type: string
+          example: "2022-08-26T17:22"
+        value:
+          type: integer
+          example: 5
+        comment:
+          type: string
+          example: Good run
+          
+          
+    Logs:
+      description: Array of logs of a Trackertype
+      type: array
+      items:
+        $ref: '#/components/schemas/Log'
+
+    Trackertypelogs:
+      description: User details of each trackertype along with logs array
+      type: object
+      properties:
+        Trackertype:
+          $ref: '#/components/schemas/Trackertype'
+        Logs:
+          $ref: '#/components/schemas/Logs'
