@@ -46,3 +46,4 @@ def email_reminnder(freq):
     send_email.reminderemail(freq=freq, list=maillist)
 
 
+# Just trying something in GitHub
